@@ -16,8 +16,8 @@ private:
     xmpp_conn_t *conn;
 
     //internal handler for things
-    void conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
-                      xmpp_stream_error_t *stream_error, void *userdata);
+    static void conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
+                             xmpp_stream_error_t *stream_error, void *userdata);
 
     //internal message handler callback
     static int message_handler(xmpp_conn_t *conn, xmpp_stanza_t *stanza, void *_userdata);
@@ -28,6 +28,8 @@ public:
 
     //libstrophe specific deallocation
     ~libstrophe_cpp();
+
+    void connect();
 };
 
 
