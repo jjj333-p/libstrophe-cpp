@@ -3,6 +3,9 @@
 //
 
 #include "libstrophe_cpp.h"
+
+#include <iostream>
+
 #include "strophe.h"
 
 libstrophe_cpp::libstrophe_cpp(const xmpp_log_level_t log_level, const std::string &jid, const std::string &pass) {
@@ -37,11 +40,18 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
     (void) error;
     (void) stream_error;
 
+    int val = 0;
+
+    // auto mh = [](xmpp_conn_t *conn2, xmpp_stanza_t *stanza, void *userdata2) {
+    //     val++;
+    // };
+
+
     if (status == XMPP_CONN_CONNECT) {
         std::cerr << "Connected." << std::endl;
 
         // Register the message handler for incoming messages
-        xmpp_handler_add(conn, message_handler, nullptr, "message", nullptr, ctx);
+        xmpp_handler_add(conn, message_handler, nullptr, "message", nullptr, this);
 
         // Send initial presence to indicate the bot is online
         xmpp_stanza_t *pres = xmpp_presence_new(ctx);
@@ -53,4 +63,9 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
         xmpp_stop(ctx); // Stop the XMPP context
     }
 }
+
+int libstrophe_cpp::message_handler(xmpp_conn_t *conn, xmpp_stanza_t *stanza, void *_userdata) {
+    return 1;
+}
+
 

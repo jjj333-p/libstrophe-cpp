@@ -19,6 +19,9 @@ private:
     void conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
                       xmpp_stream_error_t *stream_error, void *userdata);
 
+    //internal message handler callback
+    static int message_handler(xmpp_conn_t *conn, xmpp_stanza_t *stanza, void *_userdata);
+
 public:
     //allocate the libstrophe stuff
     libstrophe_cpp(xmpp_log_level_t log_level, const std::string &jid, const std::string &pass);
