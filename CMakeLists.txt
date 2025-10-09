@@ -15,7 +15,9 @@ link_directories("${LIBSTROPHE_PATH}/lib")
 # Add your executable
 add_executable(libstrophe_cpp_test main.cpp
         libstrophe_cpp.h
-        libstrophe_cpp.cpp)
+        libstrophe_cpp.cpp
+        xmpp_message.h
+        xmpp_message.cpp)
 
 # Link libstrophe
 target_link_libraries(libstrophe_cpp_test strophe)

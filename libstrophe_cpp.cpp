@@ -89,6 +89,7 @@ int libstrophe_cpp::message_handler(xmpp_conn_t *conn, xmpp_stanza_t *stanza, vo
 
     // Create a reply stanza based on the incoming message
     xmpp_stanza_t *reply = xmpp_stanza_reply(stanza);
+
     // Set the message type to "chat" if not already set
     if (!xmpp_stanza_get_type(reply))
         xmpp_stanza_set_type(reply, "chat");
