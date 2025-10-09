@@ -7,9 +7,9 @@
 #include <string>
 #include <strophe.h>
 #include <unordered_map>
+#include <memory>
 
 #include "libstrophe_cpp.h"
-
 
 class xmpp_message {
 private:
@@ -18,7 +18,11 @@ private:
 
 public:
     xmpp_message(libstrophe_cpp *client, xmpp_stanza_t *this_stanza);
-};
 
+    // Accessor methods
+    const std::unordered_map<std::string, std::string> &get_attributes() const { return attributes; }
+
+    std::string get_attribute(const std::string &key) const;
+};
 
 #endif //LIBSTROPHE_CPP_TEST_XMPP_MESSAGE_H
