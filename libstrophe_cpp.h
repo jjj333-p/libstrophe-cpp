@@ -30,6 +30,10 @@ public:
     ~libstrophe_cpp();
 
     void connect();
+
+    void free(void *thing) const {
+        xmpp_free(ctx, thing);
+    }
 };
 
 
