@@ -22,11 +22,6 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
     }
     stanza = xmpp_stanza_copy(s);
 
-    //idk why strcmp is backwards
-    if (!strcmp(xmpp_stanza_get_name(stanza), "body")) {
-        return;
-    }
-
     int n_attributes = xmpp_stanza_get_attribute_count(stanza);
 
     if (n_attributes <= 0) {
@@ -36,7 +31,7 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
 
     auto _libstrophe_attribute_list = std::make_unique<const char *[]>(n_attributes * 2);
 
-    xmpp_stanza_get_attributes(stanza, _libstrophe_attribute_list.get(), n_attributes);
+    xmpp_stanza_get_attributes(stanza, _libstrophe_attribute_list.get(), n_attributes * 2);
 
     for (int i = 0; i < n_attributes * 2; i += 2) {
         auto k_chars = _libstrophe_attribute_list[i];
@@ -44,13 +39,17 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
 
         // Add null checks for safety
         if (k_chars && v_chars) {
+            std::string key = k_chars;
+            std::string value = v_chars;
             attributes[std::string(k_chars)] = std::string(v_chars);
         }
     }
+
+    std::cout << "done\n";
 }
 
 xmpp_stanza::~xmpp_stanza() {
-    xmpp_stanza_release(stanza);
+    // xmpp_stanza_release(stanza);
 }
 
 // Move constructor
