@@ -95,6 +95,7 @@ std::optional<xmpp_stanza> xmpp_stanza::get_child_element(const std::string &nam
 
 std::string xmpp_stanza::to_string(const xmpp_ctx_t *ctx) const {
     const auto chars = xmpp_stanza_get_text(stanza);
+    if (!chars) return "";
     std::string s = chars;
     xmpp_free(ctx, chars);
     return s;
