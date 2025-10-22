@@ -17,7 +17,8 @@ add_executable(libstrophe_cpp_test main.cpp
         libstrophe_cpp.h
         libstrophe_cpp.cpp
         xmpp_stanza.h
-        xmpp_stanza.cpp)
+        xmpp_stanza.cpp
+        handler_callback.h)
 
 # Link libstrophe
 target_link_libraries(libstrophe_cpp_test strophe)

@@ -3,6 +3,10 @@
 
 #include "libstrophe_cpp.h"
 
+void h(libstrophe_cpp *client, xmpp_stanza *stanza) {
+    std::cout << "Got a message: " << stanza->to_string(client->ctx) << std::endl;
+}
+
 int main() {
     std::ifstream file("../db/login.txt");
     if (!file.is_open()) {
@@ -16,6 +20,9 @@ int main() {
     file.close();
 
     libstrophe_cpp lsc(XMPP_LEVEL_DEBUG, jid, password);
+
+    std::cout << "input" << &h << std::endl;
+    lsc.set_handler("", "message", "chat", h);
 
     lsc.connect();
 
