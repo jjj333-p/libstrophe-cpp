@@ -8,6 +8,7 @@
 #include <strophe.h>
 #include <unordered_map>
 
+#include "handler_callback.h"
 #include "xmpp_stanza.h"
 
 //foward declaration
@@ -31,7 +32,7 @@ private:
     static int generic_handler(xmpp_conn_t *conn, xmpp_stanza_t *stanza, void *_userdata);
 
     //internal map of handlers
-    std::unordered_map<std::string, void (*)(libstrophe_cpp *, xmpp_stanza *)> handlers;
+    std::unordered_map<std::string, std::unique_ptr<handler_callback> > handlers;
 
     struct HandlerStrings {
         std::string ns, name, type;

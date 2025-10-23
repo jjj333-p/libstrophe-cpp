@@ -4,6 +4,7 @@
 #include "libstrophe_cpp.h"
 
 void h(libstrophe_cpp *client, xmpp_stanza *stanza) {
+    std::cout << "in h" << std::endl;
     std::cout << "Got a message: " << stanza->to_string(client->ctx) << std::endl;
 }
 

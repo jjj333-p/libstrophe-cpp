@@ -61,7 +61,7 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
 
             std::cout << (that->handlers)[key] << std::endl;
 
-            auto hc = handler_callback((that->handlers)[key], that);
+            // auto hc = handler_callback((that->handlers)[key], that);
 
             auto gh = [](xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userdata) {
                 auto handler = static_cast<handler_callback *>(_userdata);
@@ -70,7 +70,7 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
                 return 1;
             };
 
-            xmpp_handler_add(conn, gh, nullptr, strings.name.c_str(), nullptr, &hc);
+            xmpp_handler_add(conn, gh, nullptr, strings.name.c_str(), nullptr, that->handlers[key].get());
         }
 
         // Send initial presence to indicate the bot is online
@@ -88,7 +88,7 @@ void libstrophe_cpp::set_handler(std::string ns, std::string name, std::string t
                                  void (*handler)(libstrophe_cpp *client, xmpp_stanza *stanza)) {
     //very jank pseudo-hash, maybe wrap it in a class later
     std::string key = std::format("{}/{}/{}", ns, name, type);
-    handlers[key] = handler;
+    handlers[key] = std::make_unique<handler_callback>(handler_callback(handler, this)); //handler;
 
     // Store the strings to keep them alive
     handler_strings[key] = {ns, name, type};
