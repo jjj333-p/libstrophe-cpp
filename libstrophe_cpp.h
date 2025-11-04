@@ -24,13 +24,6 @@ private:
     static void conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
                              xmpp_stream_error_t *stream_error, void *userdata);
 
-    /*
-    *internal message handler callback
-    *this function has to be static to be a c style function for libstrophe to accept it.
-    *libstrophe gives it back to us as a void pointer which we have to cast back.
-    */
-    static int generic_handler(xmpp_conn_t *conn, xmpp_stanza_t *stanza, void *_userdata);
-
     //internal map of handlers
     std::unordered_map<std::string, std::unique_ptr<handler_callback> > handlers;
 
@@ -57,6 +50,7 @@ public:
     void free(void *thing) const {
         xmpp_free(ctx, thing);
     }
+
 };
 
 

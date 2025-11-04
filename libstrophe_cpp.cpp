@@ -43,7 +43,12 @@ void libstrophe_cpp::connect() {
     return;
 }
 
-
+int c_callback_for_libstrophe(xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userdata) {
+    auto handler = static_cast<handler_callback *>(_userdata);
+    auto s = xmpp_stanza(stanza);
+    handler->call(&s);
+    return 1;
+};
 void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
                                   xmpp_stream_error_t *stream_error, void *userdata) {
     // Suppress unused parameter warnings
@@ -56,21 +61,17 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
         std::cerr << "Connected." << std::endl;
 
         for (const auto &hdlr: that->handler_strings) {
-            auto key = hdlr.first;
-            auto strings = hdlr.second;
+            std::string key = hdlr.first;
+            HandlerStrings strings = hdlr.second;
 
             std::cout << (that->handlers)[key] << std::endl;
 
-            // auto hc = handler_callback((that->handlers)[key], that);
-
-            auto gh = [](xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userdata) {
-                auto handler = static_cast<handler_callback *>(_userdata);
-                auto s = xmpp_stanza(stanza);
-                handler->call(&s);
-                return 1;
-            };
-
-            xmpp_handler_add(conn, gh, nullptr, strings.name.c_str(), nullptr, that->handlers[key].get());
+            xmpp_handler_add(
+                conn, //libstrophe connection object
+                c_callback_for_libstrophe, //generic handler lambda function defined above
+                strings.ns.c_str(), strings.name.c_str(), strings.name.c_str(), //filters
+                that->handlers[key].get() //object map containing the handler callbacks
+                );
         }
 
         // Send initial presence to indicate the bot is online
@@ -92,52 +93,6 @@ void libstrophe_cpp::set_handler(std::string ns, std::string name, std::string t
 
     // Store the strings to keep them alive
     handler_strings[key] = {ns, name, type};
-
-    // auto &stored = handler_strings[key];
-    // xmpp_handler_add(conn, generic_handler,
-    //                  stored.ns.c_str(),
-    //                  stored.name.c_str(),
-    //                  stored.type.c_str(),
-    //                  this);
-}
-
-
-int libstrophe_cpp::generic_handler(xmpp_conn_t *conn, xmpp_stanza_t *stanza, void *_userdata) {
-    // /*
-    //  *this function has to be static to be a c style function for libstrophe to accept it.
-    //  *libstrophe gives it back to us as a void pointer which we have to cast back.
-    //  *`this` is a reserved keyword so `that` is a play with words.
-    //  */
-    // auto that = static_cast<libstrophe_cpp *>(_userdata);
-    //
-    // //not sure why this would ever happen but hey
-    // if (!stanza) {
-    //     return 1;
-    // }
-    //
-    // //put the libstrophe stanza object in our RAII class
-    // auto s = xmpp_stanza(stanza);
-    //
-    // //form our key hash used in set_handler
-    // std::string ns = s.get_attribute("xmlns");
-    // std::string name = s.get_attribute("name");
-    // std::string type = s.get_attribute("type");
-    // std::string key = std::format("{}/{}/{}", ns, name, type);
-    //
-    // //try to find the out of library handler set for that hash
-    // auto handler = that->handlers.find(key);
-    //
-    // //debug, TODO use proper logging
-    // if (handler == that->handlers.end()) {
-    //     std::string stringified = s.to_string(that->ctx);
-    //     std::cerr << "No handler for " << key << " || " << stringified << std::endl;
-    //     return 1;
-    // }
-    //
-    // //call the handler
-    // handler->second(that, stanza);
-
-    return 1;
 }
 
 
