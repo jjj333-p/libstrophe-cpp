@@ -91,7 +91,11 @@ xmpp_stanza::xmpp_stanza(
 }
 
 xmpp_stanza::~xmpp_stanza() {
-    xmpp_stanza_release(stanza);
+    if (stanza != nullptr) {
+        // Add null check before releasing
+        xmpp_stanza_release(stanza);
+        stanza = nullptr;
+    }
 }
 
 // Move constructor
@@ -139,7 +143,9 @@ std::optional<xmpp_stanza> xmpp_stanza::get_child_element(
     const std::string &name, const std::string &xmlns) const {
     xmpp_stanza_t *c = xmpp_stanza_get_child_by_name(stanza, name.c_str()); //, xmlns.c_str());
     if (!c) return std::nullopt;
-    return xmpp_stanza(c);
+    // If child exists, we need to take a reference to it since libstrophe stanzas are reference counted
+    xmpp_stanza_t *child_copy = xmpp_stanza_copy(c);
+    return xmpp_stanza(child_copy);
 }
 
 void xmpp_stanza::set_child_element(const std::string &name, xmpp_stanza &child) const {

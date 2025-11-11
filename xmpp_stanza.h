@@ -115,6 +115,10 @@ public:
      * If the stanza does not contain text, an empty string is returned.
      */
     std::string to_string() const;
+
+    bool is_valid() const {
+        return stanza != nullptr;
+    }
 };
 
 #endif //LIBSTROPHE_CPP_TEST_XMPP_MESSAGE_H
