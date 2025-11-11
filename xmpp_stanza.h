@@ -116,6 +116,10 @@ public:
      */
     std::string to_string() const;
 
+    /**
+     * Checks if the xmpp_stanza object is valid.
+     * @return True if the underlying stanza object is not null, otherwise false.
+     */
     bool is_valid() const {
         return stanza != nullptr;
     }
