@@ -4,6 +4,7 @@
 
 #ifndef LIBSTROPHE_CPP_TEST_LIBSTROPHE_CPP_H
 #define LIBSTROPHE_CPP_TEST_LIBSTROPHE_CPP_H
+#include <memory>
 #include <string>
 #include <strophe.h>
 #include <unordered_map>
@@ -50,7 +51,6 @@ public:
     void free(void *thing) const {
         xmpp_free(ctx, thing);
     }
-
 };
 
 

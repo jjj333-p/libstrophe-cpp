@@ -4,7 +4,6 @@
 
 #include "xmpp_stanza.h"
 
-#include <cstring>
 #include <iostream>
 #include <memory>
 #include <optional>
@@ -48,8 +47,51 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
     std::cout << "done\n";
 }
 
+xmpp_stanza::xmpp_stanza(
+    xmpp_stanza *original,
+    std::unordered_map<std::string, std::string> *additional_attributes,
+    std::unordered_map<std::string, std::string> *string_elements,
+    std::unordered_map<std::string, xmpp_stanza> *children
+) {
+    //create reply stanza
+    stanza = xmpp_stanza_reply(original->stanza);
+
+    //copy new atributes
+    for (auto &kv: *additional_attributes) {
+        set_attribute(kv.first, kv.second);
+    }
+
+    //copy new elements
+    for (auto &kv: *string_elements) {
+        set_child_element(kv.first, kv.second);
+    }
+    for (auto &kv: *children) {
+        set_child_element(kv.first, kv.second);
+    }
+}
+
+xmpp_stanza::xmpp_stanza(
+    xmpp_ctx_t *ctx,
+    std::unordered_map<std::string, std::string> *attributes_map,
+    std::unordered_map<std::string, std::string> *string_elements,
+    std::unordered_map<std::string, xmpp_stanza> *children
+) : stanza(xmpp_stanza_new(ctx)) {
+    //copy new atributes
+    for (auto &kv: *attributes_map) {
+        set_attribute(kv.first, kv.second);
+    }
+
+    //copy new elements
+    for (auto &kv: *string_elements) {
+        set_child_element(kv.first, kv.second);
+    }
+    for (auto &kv: *children) {
+        set_child_element(kv.first, kv.second);
+    }
+}
+
 xmpp_stanza::~xmpp_stanza() {
-    // xmpp_stanza_release(stanza);
+    xmpp_stanza_release(stanza);
 }
 
 // Move constructor
@@ -88,17 +130,42 @@ std::string xmpp_stanza::get_attribute(const std::string &key) const {
     return it->second;
 }
 
-std::optional<xmpp_stanza> xmpp_stanza::get_child_element(const std::string &name, const std::string &xmlns) const {
+void xmpp_stanza::set_attribute(const std::string &key, const std::string &value) {
+    xmpp_stanza_set_attribute(stanza, key.c_str(), value.c_str());
+    attributes[key] = value;
+}
+
+std::optional<xmpp_stanza> xmpp_stanza::get_child_element(
+    const std::string &name, const std::string &xmlns) const {
     xmpp_stanza_t *c = xmpp_stanza_get_child_by_name(stanza, name.c_str()); //, xmlns.c_str());
     if (!c) return std::nullopt;
     return xmpp_stanza(c);
 }
 
-std::string xmpp_stanza::to_string(const xmpp_ctx_t *ctx) const {
+void xmpp_stanza::set_child_element(const std::string &name, xmpp_stanza &child) const {
+    xmpp_stanza_t *v = xmpp_stanza_copy(child.stanza);
+    xmpp_stanza_set_name(v, name.c_str());
+    xmpp_stanza_add_child(stanza, v);
+    xmpp_stanza_release(v);
+}
+
+std::optional<std::string>
+xmpp_stanza::get_child_element_text(const std::string &name, const std::string &xmlns) const {
+    auto child = get_child_element(name, xmlns);
+    if (!child) return std::nullopt;
+    return child->to_string();
+}
+
+void xmpp_stanza::set_child_element(const std::string &name, const std::string &text) const {
+    xmpp_stanza_set_text(stanza, text.c_str());
+}
+
+
+std::string xmpp_stanza::to_string() const {
     char *const chars = xmpp_stanza_get_text(stanza);
     if (!chars) return "";
     std::string s = chars;
-    xmpp_free(ctx, chars);
+    free(chars);
     return s;
 }
 

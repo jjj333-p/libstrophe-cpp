@@ -5,7 +5,10 @@
 
 void h(libstrophe_cpp *client, xmpp_stanza *stanza) {
     std::cout << "in h" << std::endl;
-    std::cout << "Got a message: " << stanza->to_string(client->ctx) << std::endl;
+    auto body = stanza->get_child_element_text("body", "jabber:client");
+
+    const std::string message = body ? *body : "no body";
+    std::cout << "Got a message: " << message << std::endl;
 }
 
 int main() {

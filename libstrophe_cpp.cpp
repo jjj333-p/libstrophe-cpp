@@ -49,6 +49,7 @@ int c_callback_for_libstrophe(xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userd
     handler->call(&s);
     return 1;
 };
+
 void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
                                   xmpp_stream_error_t *stream_error, void *userdata) {
     // Suppress unused parameter warnings
@@ -69,9 +70,9 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
             xmpp_handler_add(
                 conn, //libstrophe connection object
                 c_callback_for_libstrophe, //generic handler lambda function defined above
-                strings.ns.c_str(), strings.name.c_str(), strings.name.c_str(), //filters
+                nullptr, strings.name.c_str(), nullptr, //filters
                 that->handlers[key].get() //object map containing the handler callbacks
-                );
+            );
         }
 
         // Send initial presence to indicate the bot is online
