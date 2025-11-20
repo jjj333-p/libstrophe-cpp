@@ -9,6 +9,23 @@ void h(libstrophe_cpp *client, xmpp_stanza *stanza) {
 
     const std::string message = body ? *body : "no body";
     std::cout << "Got a message: " << message << std::endl;
+
+    if (!stanza->is_valid()) {
+        return;
+    }
+
+    // auto type = stanza->get_attribute("type");
+    // if (type != "chat") return;
+
+    auto from = stanza->get_attribute("from");
+    std::unordered_map<std::string, std::string> attrs = {
+        {"type", "chat"},
+        {"to", "jjj333@pain.agency"},
+    };
+    std::unordered_map<std::string, std::string> body_content = {{"body", "Hello from C++!"}};
+    auto newmsg = xmpp_stanza(stanza, &attrs, &body_content, nullptr);
+
+    client->send(&newmsg);
 }
 
 int main() {

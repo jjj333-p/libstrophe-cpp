@@ -94,6 +94,8 @@ public:
     void set_handler(std::string ns, std::string name, std::string type,
                      void (*handler)(libstrophe_cpp *client, xmpp_stanza *stanza));
 
+    void send(xmpp_stanza *stanza);
+
     /**
      * Deallocates memory that was dynamically allocated for XMPP-related operations. IDK about it tbh.
      *

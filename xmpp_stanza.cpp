@@ -21,6 +21,11 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
     }
     stanza = xmpp_stanza_copy(s);
 
+    // Example of creating a message stanza
+    xmpp_stanza_set_name(stanza, "message");
+    xmpp_stanza_set_attribute(stanza, "type", "chat");
+
+
     int n_attributes = xmpp_stanza_get_attribute_count(stanza);
 
     if (n_attributes <= 0) {
@@ -56,17 +61,25 @@ xmpp_stanza::xmpp_stanza(
     //create reply stanza
     stanza = xmpp_stanza_reply(original->stanza);
 
-    //copy new atributes
-    for (auto &kv: *additional_attributes) {
-        set_attribute(kv.first, kv.second);
+    //copy new attributes (only if pointer is not null)
+    if (additional_attributes) {
+        for (auto &kv: *additional_attributes) {
+            set_attribute(kv.first, kv.second);
+        }
     }
 
-    //copy new elements
-    for (auto &kv: *string_elements) {
-        set_child_element(kv.first, kv.second);
+    //copy new elements (only if pointer is not null)
+    if (string_elements) {
+        for (auto &kv: *string_elements) {
+            set_child_element(kv.first, kv.second);
+        }
     }
-    for (auto &kv: *children) {
-        set_child_element(kv.first, kv.second);
+
+    //copy new children (only if pointer is not null)
+    if (children) {
+        for (auto &kv: *children) {
+            set_child_element(kv.first, kv.second);
+        }
     }
 }
 
@@ -76,17 +89,23 @@ xmpp_stanza::xmpp_stanza(
     std::unordered_map<std::string, std::string> *string_elements,
     std::unordered_map<std::string, xmpp_stanza> *children
 ) : stanza(xmpp_stanza_new(ctx)) {
-    //copy new atributes
-    for (auto &kv: *attributes_map) {
-        set_attribute(kv.first, kv.second);
+    // Add null checks before dereferencing
+    if (attributes_map) {
+        for (auto &kv: *attributes_map) {
+            set_attribute(kv.first, kv.second);
+        }
     }
 
-    //copy new elements
-    for (auto &kv: *string_elements) {
-        set_child_element(kv.first, kv.second);
+    if (string_elements) {
+        for (auto &kv: *string_elements) {
+            set_child_element(kv.first, kv.second);
+        }
     }
-    for (auto &kv: *children) {
-        set_child_element(kv.first, kv.second);
+
+    if (children) {
+        for (auto &kv: *children) {
+            set_child_element(kv.first, kv.second);
+        }
     }
 }
 
@@ -136,6 +155,8 @@ std::string xmpp_stanza::get_attribute(const std::string &key) const {
 
 void xmpp_stanza::set_attribute(const std::string &key, const std::string &value) {
     xmpp_stanza_set_attribute(stanza, key.c_str(), value.c_str());
+    const char *check = xmpp_stanza_get_attribute(stanza, key.c_str());
+    std::cout << check << std::endl;
     attributes[key] = value;
 }
 
@@ -163,7 +184,23 @@ xmpp_stanza::get_child_element_text(const std::string &name, const std::string &
 }
 
 void xmpp_stanza::set_child_element(const std::string &name, const std::string &text) const {
-    xmpp_stanza_set_text(stanza, text.c_str());
+    xmpp_ctx_t *ctx = xmpp_stanza_get_context(stanza);
+
+    // Create the element (e.g., <body>)
+    xmpp_stanza_t *child = xmpp_stanza_new(ctx);
+    xmpp_stanza_set_name(child, name.c_str());
+
+    // Create a text node child
+    xmpp_stanza_t *text_node = xmpp_stanza_new(ctx);
+    xmpp_stanza_set_text(text_node, text.c_str());
+
+    // Add text node to the element
+    xmpp_stanza_add_child(child, text_node);
+    xmpp_stanza_release(text_node);
+
+    // Add the complete element to parent
+    xmpp_stanza_add_child(stanza, child);
+    xmpp_stanza_release(child);
 }
 
 
@@ -171,7 +208,7 @@ std::string xmpp_stanza::to_string() const {
     char *const chars = xmpp_stanza_get_text(stanza);
     if (!chars) return "";
     std::string s = chars;
-    free(chars);
+    xmpp_free(xmpp_stanza_get_context(stanza), chars); // Use xmpp_free instead of free
     return s;
 }
 
