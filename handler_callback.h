@@ -42,7 +42,6 @@ public:
      */
     void call(xmpp_stanza *stanza) const {
         handler(that, stanza);
-        std::cout << "called\n";
     }
 };
 

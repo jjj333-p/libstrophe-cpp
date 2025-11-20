@@ -22,7 +22,7 @@ void h(libstrophe_cpp *client, xmpp_stanza *stanza) {
         {"type", "chat"},
         {"to", "jjj333@pain.agency"},
     };
-    std::unordered_map<std::string, std::string> body_content = {{"body", "Hello from C++!"}};
+    std::unordered_map<std::string, std::string> body_content = {{"body", "Recieved \"" + message + "\""}};
     auto newmsg = xmpp_stanza(stanza, &attrs, &body_content, nullptr);
 
     client->send(&newmsg);

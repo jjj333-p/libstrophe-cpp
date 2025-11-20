@@ -65,8 +65,6 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
             std::string key = hdlr.first;
             HandlerStrings strings = hdlr.second;
 
-            std::cout << (that->handlers)[key] << std::endl;
-
             xmpp_handler_add(
                 conn, //libstrophe connection object
                 c_callback_for_libstrophe, //generic handler lambda function defined above

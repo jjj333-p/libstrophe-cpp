@@ -21,17 +21,11 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
     }
     stanza = xmpp_stanza_copy(s);
 
-    // Example of creating a message stanza
-    xmpp_stanza_set_name(stanza, "message");
-    xmpp_stanza_set_attribute(stanza, "type", "chat");
-
-
     int n_attributes = xmpp_stanza_get_attribute_count(stanza);
 
     if (n_attributes <= 0) {
         return; // No attributes to process
     }
-    //TODO: why is this 1 for body
 
     auto _libstrophe_attribute_list = std::make_unique<const char *[]>(n_attributes * 2);
 
@@ -48,8 +42,6 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
             attributes[std::string(k_chars)] = std::string(v_chars);
         }
     }
-
-    std::cout << "done\n";
 }
 
 xmpp_stanza::xmpp_stanza(
@@ -155,8 +147,6 @@ std::string xmpp_stanza::get_attribute(const std::string &key) const {
 
 void xmpp_stanza::set_attribute(const std::string &key, const std::string &value) {
     xmpp_stanza_set_attribute(stanza, key.c_str(), value.c_str());
-    const char *check = xmpp_stanza_get_attribute(stanza, key.c_str());
-    std::cout << check << std::endl;
     attributes[key] = value;
 }
 
