@@ -26,16 +26,17 @@ public:
      * construct a friendly class around a libstrophe stanza for conveience
      * @param s xmpp stanza as recieved by the libstrophe library
      */
-    explicit xmpp_stanza(xmpp_stanza_t *s);
+    explicit xmpp_stanza(const xmpp_stanza_t *s);
 
     /**
      * create stanza to send where a previous stanza came from
+     * @param original the previous stanza you wish to reply to
      * @param additional_attributes the atributes section of the xml stanza, key,value pairs
      * @param string_elements children of the xml stanza that are just string content, i.e. <body>foo</body>, key,value pairs
      * @param children children stanzas of the xml stanza, key,xmpp_stanza pairs
      */
     xmpp_stanza(
-        xmpp_stanza *original,
+        const xmpp_stanza *original,
         std::unordered_map<std::string, std::string> *additional_attributes,
         std::unordered_map<std::string, std::string> *string_elements,
         std::unordered_map<std::string, xmpp_stanza> *children
@@ -92,7 +93,7 @@ public:
      * @param name The name of the child element to be set.
      * @param child The xmpp_stanza object representing the child element to attach.
      */
-    void set_child_element(const std::string &name, xmpp_stanza &child) const;
+    void set_child_element(const std::string &name, const xmpp_stanza &child) const;
 
     /**
      * Retrieves the text content of a child element in the current stanza that matches the specified name and XML namespace.

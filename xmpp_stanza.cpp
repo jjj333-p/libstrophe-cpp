@@ -14,7 +14,7 @@ std::string make_key(const std::string &tag, const std::string &attr) {
     return tag + "\x1F" + attr; // Using ASCII Unit Separator character
 }
 
-xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
+xmpp_stanza::xmpp_stanza(const xmpp_stanza_t *s) {
     // make sure we got a stanza and store a local copy
     if (!s) {
         throw std::invalid_argument("Stanza cannot be null");
@@ -45,7 +45,7 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
 }
 
 xmpp_stanza::xmpp_stanza(
-    xmpp_stanza *original,
+    const xmpp_stanza *original,
     std::unordered_map<std::string, std::string> *additional_attributes,
     std::unordered_map<std::string, std::string> *string_elements,
     std::unordered_map<std::string, xmpp_stanza> *children
@@ -111,7 +111,7 @@ xmpp_stanza::~xmpp_stanza() {
 
 // Move constructor
 xmpp_stanza::xmpp_stanza(xmpp_stanza &&other) noexcept
-    : stanza(other.stanza), attributes(std::move(other.attributes)) {
+    : attributes(std::move(other.attributes)), stanza(other.stanza) {
     other.stanza = nullptr; // Transfer ownership
 }
 
@@ -159,7 +159,7 @@ std::optional<xmpp_stanza> xmpp_stanza::get_child_element(
     return xmpp_stanza(child_copy);
 }
 
-void xmpp_stanza::set_child_element(const std::string &name, xmpp_stanza &child) const {
+void xmpp_stanza::set_child_element(const std::string &name, const xmpp_stanza &child) const {
     xmpp_stanza_t *v = xmpp_stanza_copy(child.stanza);
     xmpp_stanza_set_name(v, name.c_str());
     xmpp_stanza_add_child(stanza, v);

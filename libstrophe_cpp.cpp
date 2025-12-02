@@ -95,7 +95,7 @@ void libstrophe_cpp::set_handler(std::string ns, std::string name, std::string t
     handler_strings[key] = {ns, name, type};
 }
 
-void libstrophe_cpp::send(xmpp_stanza *stanza) {
+void libstrophe_cpp::send(const xmpp_stanza *stanza) const {
     if (conn && stanza != nullptr && stanza->is_valid()) {
         xmpp_send(conn, stanza->stanza);
     }

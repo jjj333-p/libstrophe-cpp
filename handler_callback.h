@@ -4,9 +4,6 @@
 
 #ifndef LIBSTROPHE_CPP_TEST_HANDLER_CALLBACK_H
 #define LIBSTROPHE_CPP_TEST_HANDLER_CALLBACK_H
-#include <functional>
-#include <iostream>
-#include <utility>
 
 #include "xmpp_stanza.h"
 
