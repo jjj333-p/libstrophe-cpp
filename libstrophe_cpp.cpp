@@ -40,7 +40,6 @@ libstrophe_cpp::~libstrophe_cpp() {
 void libstrophe_cpp::connect() {
     xmpp_connect_client(conn, nullptr, 0, conn_handler, this);
     xmpp_run(ctx);
-    return;
 }
 
 int c_callback_for_libstrophe(xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userdata) {
@@ -53,6 +52,7 @@ int c_callback_for_libstrophe(xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userd
 void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
                                   xmpp_stream_error_t *stream_error, void *userdata) {
     // Suppress unused parameter warnings
+    // TODO: handle warnings
     (void) error;
     (void) stream_error;
 
@@ -68,6 +68,7 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
             xmpp_handler_add(
                 conn, //libstrophe connection object
                 c_callback_for_libstrophe, //generic handler lambda function defined above
+                //TODO why does this need to be nullptr
                 nullptr, strings.name.c_str(), nullptr, //filters
                 that->handlers[key].get() //object map containing the handler callbacks
             );

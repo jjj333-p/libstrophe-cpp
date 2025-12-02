@@ -39,7 +39,7 @@ xmpp_stanza::xmpp_stanza(xmpp_stanza_t *s) {
         if (k_chars && v_chars) {
             std::string key = k_chars;
             std::string value = v_chars;
-            attributes[std::string(k_chars)] = std::string(v_chars);
+            attributes[key] = value;
         }
     }
 }
