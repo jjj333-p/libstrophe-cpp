@@ -68,8 +68,7 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
             xmpp_handler_add(
                 conn, //libstrophe connection object
                 c_callback_for_libstrophe, //generic handler lambda function defined above
-                //TODO why does this need to be nullptr
-                nullptr, strings.name.c_str(), nullptr, //filters
+                strings.ns.c_str(), strings.name.c_str(), strings.type.c_str(), //filters
                 that->handlers[key].get() //object map containing the handler callbacks
             );
         }
