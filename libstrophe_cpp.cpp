@@ -66,10 +66,12 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
             HandlerStrings strings = hdlr.second;
 
             xmpp_handler_add(
-                conn, //libstrophe connection object
-                c_callback_for_libstrophe, //generic handler lambda function defined above
-                strings.ns.c_str(), strings.name.c_str(), strings.type.c_str(), //filters
-                that->handlers[key].get() //object map containing the handler callbacks
+                conn,
+                c_callback_for_libstrophe,
+                strings.ns ? strings.ns->c_str() : nullptr,
+                strings.name ? strings.name->c_str() : nullptr,
+                strings.type ? strings.type->c_str() : nullptr,
+                that->handlers[key].get()
             );
         }
 
@@ -84,10 +86,16 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
     }
 }
 
-void libstrophe_cpp::set_handler(std::string ns, std::string name, std::string type,
-                                 void (*handler)(libstrophe_cpp *client, xmpp_stanza *stanza)) {
+void libstrophe_cpp::set_handler(
+    std::optional<std::string> ns, std::optional<std::string> name, std::optional<std::string> type,
+    void (*handler)(libstrophe_cpp *client, xmpp_stanza *stanza)
+) {
     //very jank pseudo-hash, maybe wrap it in a class later
-    std::string key = std::format("{}/{}/{}", ns, name, type);
+    std::string key = std::format("{}/{}/{}",
+                                  ns.value_or(""),
+                                  name.value_or(""),
+                                  type.value_or("")
+    );
     handlers[key] = std::make_unique<handler_callback>(handler_callback(handler, this)); //handler;
 
     // Store the strings to keep them alive

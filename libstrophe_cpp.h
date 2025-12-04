@@ -55,7 +55,7 @@ private:
 
     //type for finding stanzas
     struct HandlerStrings {
-        std::string ns, name, type;
+        std::optional<std::string> ns, name, type;
     };
 
     std::unordered_map<std::string, HandlerStrings> handler_strings;
@@ -91,8 +91,10 @@ public:
      * @param type The type of the XMPP stanza to match.
      * @param handler A pointer to the function to handle the XMPP stanza when received.
      */
-    void set_handler(std::string ns, std::string name, std::string type,
-                     void (*handler)(libstrophe_cpp *client, xmpp_stanza *stanza));
+    void set_handler(
+        std::optional<std::string> ns, std::optional<std::string> name, std::optional<std::string> type,
+        void (*handler)(libstrophe_cpp *client, xmpp_stanza *stanza)
+    );
 
     void send(const xmpp_stanza *stanza) const;
 

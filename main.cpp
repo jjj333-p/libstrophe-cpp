@@ -43,7 +43,7 @@ int main() {
     libstrophe_cpp lsc(XMPP_LEVEL_DEBUG, jid, password);
 
     std::cout << "input" << &h << std::endl;
-    lsc.set_handler("jabber:client", "message", "chat", h);
+    lsc.set_handler(std::nullopt, "message", "chat", h);
 
     lsc.connect();
 
