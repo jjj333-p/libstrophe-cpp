@@ -66,11 +66,6 @@ int c_callback_for_libstrophe(xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userd
 
 void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, int error,
                                   xmpp_stream_error_t *stream_error, void *userdata) {
-    // Suppress unused parameter warnings
-    // TODO: handle warnings
-    (void) error;
-    (void) stream_error;
-
     auto that = static_cast<libstrophe_cpp *>(userdata);
 
     if (error) {
