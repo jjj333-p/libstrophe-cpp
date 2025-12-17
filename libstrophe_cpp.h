@@ -60,9 +60,14 @@ private:
         std::optional<std::string> ns, name, type;
     };
 
+    /**
+     * Represents a mapping between string-based identifiers and `HandlerStrings` objects
+     * used for managing XMPP stanza handlers.
+     */
     std::unordered_map<std::string, HandlerStrings> handler_strings;
-    std::string jid;
-    std::string pass;
+
+    //store internally for reconnection
+    std::string jid, pass;
 
 public:
     xmpp_ctx_t *ctx;
@@ -118,6 +123,16 @@ public:
         void (*handler)(libstrophe_cpp *client, xmpp_stanza *stanza)
     );
 
+    /**
+     * Sends an XMPP stanza to the server using the active XMPP connection.
+     *
+     * This method transmits a constructed XMPP stanza over the currently maintained
+     * connection. It ensures that the stanza is valid and the connection is active
+     * before attempting to send the data.
+     *
+     * @param stanza Pointer to the `xmpp_stanza` object representing the XML data
+     *               to be sent. The stanza must be valid and properly constructed.
+     */
     void send(const xmpp_stanza *stanza) const;
 
     /**
