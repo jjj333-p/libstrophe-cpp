@@ -37,6 +37,8 @@ private:
     const xmpp_log_t *log;
     xmpp_conn_t *conn;
 
+    int conn_err = 0;
+
     //internal handler for things
     /**
      * Handles XMPP connection events such as connection, disconnection, and errors.
@@ -59,6 +61,8 @@ private:
     };
 
     std::unordered_map<std::string, HandlerStrings> handler_strings;
+    std::string jid;
+    std::string pass;
 
 public:
     xmpp_ctx_t *ctx;
@@ -76,8 +80,26 @@ public:
      * This method establishes a client connection to the XMPP server using the pre-configured connection object
      * and connection handler. Once the connection is established or attempted, the method executes the main
      * event loop for processing XMPP stanzas and events.
+     *
+     * returns the error state of the connection, 0 is a graceful exit.
      */
-    void connect();
+    int connect_noexcept();
+
+    /**
+     * Initiates an XMPP connection using the configured connection instance and runs the associated context.
+     *
+     * This method establishes a client connection to the XMPP server using the pre-configured connection object
+     * and connection handler. Once the connection is established or attempted, the method executes the main
+     * event loop for processing XMPP stanzas and events.
+     *
+     * Any connection error is thrown.
+     */
+    void connect() {
+        connect_noexcept();
+        if (conn_err != 0) {
+            throw std::runtime_error("Failed to connect to XMPP server with error " + std::to_string(conn_err));
+        }
+    }
 
     /**
      * Registers a handler for processing XMPP stanzas based on specified criteria.

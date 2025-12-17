@@ -11,7 +11,8 @@
 #include "strophe.h"
 #include "xmpp_stanza.h"
 
-libstrophe_cpp::libstrophe_cpp(const xmpp_log_level_t log_level, const std::string &jid, const std::string &pass) {
+libstrophe_cpp::libstrophe_cpp(const xmpp_log_level_t log_level, const std::string &jid, const std::string &pass)
+    : jid(jid), pass(pass) {
     // Initialize the XMPP library
     xmpp_initialize();
 
@@ -25,8 +26,8 @@ libstrophe_cpp::libstrophe_cpp(const xmpp_log_level_t log_level, const std::stri
     conn = xmpp_conn_new(ctx);
 
     // Set connection credentials
-    xmpp_conn_set_jid(conn, jid.c_str()); // Set Jabber ID
-    xmpp_conn_set_pass(conn, pass.c_str()); // Set password
+    xmpp_conn_set_jid(conn, jid.c_str());
+    xmpp_conn_set_pass(conn, pass.c_str());
 }
 
 // Clean up resources
@@ -37,9 +38,23 @@ libstrophe_cpp::~libstrophe_cpp() {
     delete log;
 }
 
-void libstrophe_cpp::connect() {
+int libstrophe_cpp::connect_noexcept() {
+    conn_err = 0; // Reset error state
+
+    // If conn exists and we're reconnecting, release the old one
+    if (conn) {
+        xmpp_conn_release(conn);
+    }
+
+    // Create a fresh connection
+    conn = xmpp_conn_new(ctx);
+    xmpp_conn_set_jid(conn, jid.c_str());
+    xmpp_conn_set_pass(conn, pass.c_str());
+
     xmpp_connect_client(conn, nullptr, 0, conn_handler, this);
     xmpp_run(ctx);
+
+    return conn_err;
 }
 
 int c_callback_for_libstrophe(xmpp_conn_t *, xmpp_stanza_t *stanza, void *_userdata) {
@@ -57,6 +72,19 @@ void libstrophe_cpp::conn_handler(xmpp_conn_t *conn, xmpp_conn_event_t status, i
     (void) stream_error;
 
     auto that = static_cast<libstrophe_cpp *>(userdata);
+
+    if (error) {
+        std::cerr << "Error in connection: " << error << std::endl;
+        that->conn_err = error;
+        xmpp_stop(that->ctx);
+        return;
+    }
+    if (stream_error) {
+        std::cerr << "Stream error: " << stream_error->text << std::endl;
+        xmpp_stop(that->ctx);
+        return;
+    }
+
 
     if (status == XMPP_CONN_CONNECT) {
         std::cerr << "Connected." << std::endl;

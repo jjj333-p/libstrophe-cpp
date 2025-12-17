@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <thread>
 
 #include "libstrophe_cpp.h"
 
@@ -17,15 +18,28 @@ void h(libstrophe_cpp *client, xmpp_stanza *stanza) {
     // auto type = stanza->get_attribute("type");
     // if (type != "chat") return;
 
-    auto from = stanza->get_attribute("from");
-    std::unordered_map<std::string, std::string> attrs = {
-        {"type", "chat"},
-        {"to", "jjj333@pain.agency"},
-    };
-    std::unordered_map<std::string, std::string> body_content = {{"body", "Recieved \"" + message + "\""}};
-    auto newmsg = xmpp_stanza(stanza, &attrs, &body_content, nullptr);
+    std::mutex m;
+    m.lock();
 
-    client->send(&newmsg);
+    std::thread t([=, &m] {
+        auto from = stanza->get_attribute("from");
+        std::unordered_map<std::string, std::string> attrs = {
+            {"type", "chat"},
+            {"to", "jjj333@pain.agency"},
+        };
+        std::unordered_map<std::string, std::string> body_content = {{"body", "Recieved \"" + message + "\""}};
+        auto newmsg = xmpp_stanza(stanza, &attrs, &body_content, nullptr);
+
+        m.unlock();
+
+        while (true) {
+            client->send(&newmsg);
+            sleep(15);
+        }
+    });
+
+    m.lock();
+    t.detach();
 }
 
 int main() {
@@ -45,7 +59,11 @@ int main() {
     std::cout << "input" << &h << std::endl;
     lsc.set_handler(std::nullopt, "message", "chat", h);
 
-    lsc.connect();
+    int connstate = 0;
+    do {
+        connstate = lsc.connect_noexcept();
+        std::cout << "exited";
+    } while (connstate != 0);
 
     return 0;
 }

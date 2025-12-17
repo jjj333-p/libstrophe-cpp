@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.31)
 project(libstrophe_cpp_test)
 
-set(CMAKE_CXX_STANDARD 26)
+set(CMAKE_CXX_STANDARD 23)
 
 # Assume you installed libstrophe to ~/.local
 set(LIBSTROPHE_PATH "$ENV{HOME}/.local")
