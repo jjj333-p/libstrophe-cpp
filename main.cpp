@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <random>
 
 #include "libstrophe_cpp.h"
 
@@ -18,28 +19,41 @@ void h(libstrophe_cpp *client, xmpp_stanza *stanza) {
     // auto type = stanza->get_attribute("type");
     // if (type != "chat") return;
 
-    std::mutex m;
-    m.lock();
+    auto from = stanza->get_attribute("from");
+    std::unordered_map<std::string, std::string> attrs = {
+        {"type", "chat"},
+        {"to", from},
+    };
+    std::unordered_map<std::string, std::string> body_content = {{"body", "Echo: \"" + message + "\""}};
+    auto newmsg = xmpp_stanza(stanza, &attrs, &body_content, nullptr);
 
-    std::thread t([=, &m] {
-        auto from = stanza->get_attribute("from");
-        std::unordered_map<std::string, std::string> attrs = {
-            {"type", "chat"},
-            {"to", "jjj333@pain.agency"},
-        };
-        std::unordered_map<std::string, std::string> body_content = {{"body", "Recieved \"" + message + "\""}};
-        auto newmsg = xmpp_stanza(stanza, &attrs, &body_content, nullptr);
+    client->send(&newmsg);
 
-        m.unlock();
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(0, 2);
+    int random_value = distrib(gen);
 
-        while (true) {
-            client->send(&newmsg);
-            sleep(15);
-        }
-    });
+    std::uniform_int_distribution<> distrib_100(1, 100);
+    int random_value_100 = distrib_100(gen);
 
-    m.lock();
-    t.detach();
+
+    std::string bdy;
+    switch (random_value) {
+        case 0:
+            bdy = "Battery: " + std::to_string(random_value_100) + "%";
+            break;
+        case 1:
+            bdy = "Signal: " + std::to_string(random_value_100) + "%";
+            break;
+        case 2:
+            bdy = "Speed: " + std::to_string(random_value_100) + " km/h";
+    }
+
+    std::unordered_map<std::string, std::string> second_body = {{"body", bdy}};
+    auto second_msg = xmpp_stanza(stanza, &attrs, &second_body, nullptr);
+
+    client->send(&second_msg);
 }
 
 int main() {
